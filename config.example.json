@@ -1,0 +1,35 @@
+{
+    "detection": {
+        "model_path": "models/yolov8n.pt",
+        "confidence_threshold": 0.4,
+        "target_fps": 10
+    },
+    "tracking": {
+        "max_disappeared_frames": 30,
+        "max_distance_pixels": 100,
+        "event_threshold_frames": 45
+    },
+    "fire_water": {
+        "fire_threshold": 0.02,
+        "water_threshold": 0.05
+    },
+    "events": {
+        "output_dir": "output",
+        "clip_duration_seconds": 5
+    },
+    "geolocation": {
+        "default_lat": 40.4168,
+        "default_lon": -3.7038,
+        "add_noise": true
+    },
+    "websocket": {
+        "host": "localhost",
+        "port": 8000,
+        "enabled": true
+    },
+    "dashboard": {
+        "map_center": [40.4168, -3.7038],
+        "map_zoom": 13,
+        "max_events": 100
+    }
+}

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Operador - Dron de Rescate Edge</title>
+    
+    <!-- Leaflet CSS para mapa offline -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin=""/>
+    
+    <!-- Estilos propios -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header del Dashboard -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <h1>🚁 Dashboard Operador - Dron de Rescate Edge</h1>
+            <div class="connection-status">
+                <div id="ws-status" class="status-indicator offline">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Desconectado</span>
+                </div>
+                <button id="btn-reconnect" class="btn-reconnect" style="display: none;" title="Reconectar al servidor">
+                    🔄 Reconectar
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenedor principal -->
+    <div class="dashboard-container">
+        
+        <!-- Panel lateral izquierdo: Lista de eventos -->
+        <aside class="events-panel">
+            <div class="panel-header">
+                <h2>📋 Eventos Activos</h2>
+                <div class="event-stats">
+                    <span id="event-count" class="stat">0 eventos</span>
+                    <button id="clear-events" class="btn-clear" title="Limpiar todos los eventos">
+                        🗑️ Limpiar
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Filtros -->
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="persona">Personas</button>
+                <button class="filter-btn" data-filter="incendio">Incendios</button>
+                <button class="filter-btn" data-filter="inundacion">Inundaciones</button>
+            </div>
+            
+            <!-- Lista de eventos -->
+            <div id="events-list" class="events-list">
+                <!-- Los eventos se insertarán dinámicamente aquí -->
+                <div class="empty-state">
+                    <p>⏳ Esperando eventos del sistema edge...</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Panel principal: Mapa y detalles -->
+        <main class="main-panel">
+            
+            <!-- Mapa -->
+            <section class="map-section">
+                <div class="section-header">
+                    <h2>🗺️ Ubicación de Eventos</h2>
+                    <div class="map-controls">
+                        <button id="center-map" class="btn-control" title="Centrar mapa">
+                            🎯 Centrar
+                        </button>
+                    </div>
+                </div>
+                <div id="map" class="map-container"></div>
+            </section>
+
+            <!-- Panel de detalles del evento seleccionado -->
+            <section class="details-section" id="event-details" style="display: none;">
+                <div class="section-header">
+                    <h2>ℹ️ Detalles del Evento</h2>
+                    <button id="close-details" class="btn-close">✕</button>
+                </div>
+                
+                <div class="details-content">
+                    <!-- Información básica -->
+                    <div class="detail-group">
+                        <h3>Información General</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>ID del Evento:</label>
+                                <span id="detail-id">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Tipo:</label>
+                                <span id="detail-tipo" class="badge">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Prioridad:</label>
+                                <span id="detail-prioridad" class="badge">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Timestamp:</label>
+                                <span id="detail-timestamp">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de persona -->
+                    <div class="detail-group" id="person-details" style="display: none;">
+                        <h3>Detalles de Persona</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>Postura:</label>
+                                <span id="detail-postura">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Confianza:</label>
+                                <span id="detail-conf-postura">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Estado:</label>
+                                <span id="detail-estado">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Personas:</label>
+                                <span id="detail-count">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de emergencia -->
+                    <div class="detail-group" id="hazard-details" style="display: none;">
+                        <h3>Emergencia Detectada</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>Fuego:</label>
+                                <span id="detail-fire">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Inundación:</label>
+                                <span id="detail-water">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ubicación -->
+                    <div class="detail-group">
+                        <h3>Ubicación GPS</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>Latitud:</label>
+                                <span id="detail-lat">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Longitud:</label>
+                                <span id="detail-lon">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video clip -->
+                    <div class="detail-group" id="clip-details" style="display: none;">
+                        <h3>🎥 Clip de Video</h3>
+                        <div class="clip-info">
+                            <span id="detail-clip-path">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Acciones del operador -->
+                    <div class="detail-actions">
+                        <button id="btn-confirm" class="btn-action btn-confirm">
+                            ✅ Confirmar Evento
+                        </button>
+                        <button id="btn-reject" class="btn-action btn-reject">
+                            ❌ Rechazar Evento
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Toast de notificaciones -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Leaflet JS para mapa offline -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+            crossorigin=""></script>
+    
+    <!-- Dashboard JavaScript -->
+    <script src="dashboard.js"></script>
+</body>
+</html>

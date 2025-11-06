@@ -1,0 +1,22 @@
+# Requirements para Sistema Edge de Dron de Rescate
+# Python 3.8+
+
+# Computer Vision y Deep Learning
+ultralytics>=8.0.0          # YOLOv8 para detección de objetos
+opencv-python>=4.8.0        # Procesamiento de video e imagen
+numpy>=1.24.0               # Arrays y operaciones numéricas
+scipy>=1.10.0               # Cálculos científicos (tracking)
+
+# Networking y WebSocket
+websockets>=12.0            # Servidor y cliente WebSocket
+aiohttp>=3.9.0              # HTTP asíncrono (alternativo)
+
+# Geolocalización
+geopy>=2.4.0                # Herramientas de geolocalización (opcional)
+
+# Utilidades
+python-dateutil>=2.8.0      # Manejo de fechas y tiempos
+
+# Desarrollo y Testing (opcional)
+pytest>=7.4.0               # Framework de testing
+pytest-asyncio>=0.21.0      # Testing asíncrono
